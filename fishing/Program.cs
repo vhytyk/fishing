@@ -74,22 +74,22 @@ public class Program
                     CopyPixelOperation.SourceCopy);
             }
 
-            if (bmpScreenCapture.GetPixel(0, 0).B > 0)
+            if (bmpScreenCapture.GetPixel(0, 0).B == 255)
             {
                 return FishingState.WaitingForFishing;
             }
-            if (bmpScreenCapture.GetPixel(0, 0).R > 0)
+            if (bmpScreenCapture.GetPixel(0, 0).R == 255)
             {
                 return FishingState.Fishing;
             }
-            if (bmpScreenCapture.GetPixel(0, 0).G > 0)
+            if (bmpScreenCapture.GetPixel(0, 0).G == 255)
             {
                 return FishingState.TimeToCatch;
             }
         }
         return FishingState.NoFishing;
     }
-
+    static int noFishingCounter = 0;
     public static void Main(string[] args)
     {
         while (true)
@@ -100,10 +100,23 @@ public class Program
             switch (state)
             {
                 case FishingState.WaitingForFishing:
+                    noFishingCounter = 1;
                     WaitingCycle();
                     break;
                 case FishingState.Fishing:
+                    noFishingCounter = 1;
                     FishingCycle();
+                    break;
+                case FishingState.NoFishing:
+                    if (noFishingCounter > 5)
+                    {
+                        System.Media.SystemSounds.Hand.Play();
+                        noFishingCounter = 0;
+                    }
+                    else if(noFishingCounter != 0)
+                    {
+                        noFishingCounter++;
+                    }
                     break;
             }
         }

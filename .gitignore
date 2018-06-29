@@ -50,3 +50,4 @@ fishing/obj/Debug/ConsoleApplication27.exe
 *.pdb
 */bin/*
 */obj/*
+*.vs/*
