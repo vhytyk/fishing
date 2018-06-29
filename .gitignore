@@ -45,3 +45,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+*.suo
+fishing/obj/Debug/ConsoleApplication27.exe
+*.pdb
+*/bin/*
+*/obj/*
