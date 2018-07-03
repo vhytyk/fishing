@@ -1,8 +1,9 @@
 ﻿
+using fishing;
+using SlimDX.Direct3D9;
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -24,8 +25,22 @@ public class Program
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
 
+    [DllImport("user32.dll")]
+    public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool PrintWindow(IntPtr hwnd, IntPtr hDC, uint nFlags);
+
+
     const UInt32 WM_KEYDOWN = 0x0100;
     const UInt32 WM_KEYUP = 0x0101;
+    const UInt32 WM_LBUTTONDOWN = 0x201;
+    const UInt32 WM_LBUTTONUP = 0x202;
+
     public struct Rect
     {
         public int Left { get; set; }
@@ -34,6 +49,10 @@ public class Program
         public int Bottom { get; set; }
     }
 
+    private static int MAKELPARAM(int p, int p_2)
+    {
+        return ((p_2 << 16) | (p & 0xFFFF));
+    }
 
     public static IntPtr GetApplicationPtr() { return Process.GetProcessesByName("eso64").First().MainWindowHandle; }
 
@@ -62,6 +81,8 @@ public class Program
     {
         Rect rect = new Rect();
         GetWindowRect(GetApplicationPtr(), ref rect);
+        FishingState result = FishingState.NoFishing;
+
         using (Bitmap bmpScreenCapture = new Bitmap(1, 1))
         {
             using (Graphics g = Graphics.FromImage(bmpScreenCapture))
@@ -76,20 +97,23 @@ public class Program
 
             if (bmpScreenCapture.GetPixel(0, 0).B == 255)
             {
-                return FishingState.WaitingForFishing;
+                result = FishingState.WaitingForFishing;
             }
             if (bmpScreenCapture.GetPixel(0, 0).R == 255)
             {
-                return FishingState.Fishing;
+                result = FishingState.Fishing;
             }
             if (bmpScreenCapture.GetPixel(0, 0).G == 255)
             {
-                return FishingState.TimeToCatch;
+                result = FishingState.TimeToCatch;
             }
         }
-        return FishingState.NoFishing;
+
+        return result;
     }
     static int noFishingCounter = 0;
+    
+ 
     public static void Main(string[] args)
     {
         while (true)
@@ -100,7 +124,6 @@ public class Program
             switch (state)
             {
                 case FishingState.WaitingForFishing:
-                    noFishingCounter = 1;
                     WaitingCycle();
                     break;
                 case FishingState.Fishing:
@@ -124,7 +147,9 @@ public class Program
 
     public static void PressKey(Keys key)
     {
-        SendMessage(GetApplicationPtr(), WM_KEYDOWN, (IntPtr) key, IntPtr.Zero);
+        IntPtr ptr = GetApplicationPtr();
+
+        SendMessage(ptr, WM_KEYDOWN, (IntPtr) key, IntPtr.Zero);
         SendMessage(GetApplicationPtr(), WM_KEYUP, (IntPtr)key, IntPtr.Zero);
         LogStatus($"{key} pressed");
     }

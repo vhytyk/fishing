@@ -1,5 +1,6 @@
 local addonName = 'FishingHelper'
 local cnt0 = 0
+local fishingBegin = false
 
 local function onSlotUpdate(event, bagId, slotIndex, isNew)
   local lure = GetFishingLure()
@@ -31,24 +32,28 @@ local function onLureSet(event,lure)
   end
 end
 
-local function onLootReceived(eventCode, receivedBy, itemName, quantity, soundCategory, lootType, self, isPickpocketLoot, questItemIcon, itemId, isStolen)
-
-end
-
 local function onChatterEnd(eventCode)
-  FishingWindowRect:SetEdgeColor(0, 0, 255, 1)
-  FishingWindowRect:SetCenterColor(0, 0, 255, 1)
+  if fishingBegin then
+    FishingWindowRect:SetEdgeColor(0, 0, 255, 1)
+    FishingWindowRect:SetCenterColor(0, 0, 255, 1)
+  end
 end
 
 local function onNoInteractTarget(eventCode)
   FishingWindowRect:SetEdgeColor(0, 0, 0, 1)
   FishingWindowRect:SetCenterColor(0, 0, 0, 1)
+  fishingBegin = false
 end
 
 local function onClientInteractResult(eventCode, result, interactTargetName)
   if result == CLIENT_INTERACT_RESULT_SUCCESS and interactTargetName == "Fishing Hole" then
     FishingWindowRect:SetEdgeColor(255, 0, 0, 1)
     FishingWindowRect:SetCenterColor(255, 0, 0, 1)
+	fishingBegin = true
+  else
+    FishingWindowRect:SetEdgeColor(0, 0, 0, 1)
+    FishingWindowRect:SetCenterColor(0, 0, 0, 1)
+	fishingBegin = false
   end
 end
 
