@@ -46,7 +46,7 @@ local function onNoInteractTarget(eventCode)
 end
 
 local function onClientInteractResult(eventCode, result, interactTargetName)
-  if result == CLIENT_INTERACT_RESULT_SUCCESS and interactTargetName == "Fishing Hole" then
+  if result == CLIENT_INTERACT_RESULT_SUCCESS and string.match(interactTargetName, "Fishing Hole") then
     FishingWindowRect:SetEdgeColor(255, 0, 0, 1)
     FishingWindowRect:SetCenterColor(255, 0, 0, 1)
 	fishingBegin = true

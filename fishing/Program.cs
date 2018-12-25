@@ -112,7 +112,7 @@ public class Program
         return result;
     }
     static int noFishingCounter = 0;
-    
+    static DateTime waitStart = DateTime.Now;
  
     public static void Main(string[] args)
     {
@@ -135,10 +135,16 @@ public class Program
                     {
                         System.Media.SystemSounds.Hand.Play();
                         noFishingCounter = 0;
+                        waitStart = DateTime.Now;
                     }
                     else if(noFishingCounter != 0)
                     {
                         noFishingCounter++;
+                    }
+                    else if(noFishingCounter == 0 && (DateTime.Now - waitStart).TotalMinutes > 2)
+                    {
+                        waitStart = DateTime.Now;
+                        WaitingCycle();
                     }
                     break;
             }
@@ -181,9 +187,7 @@ public class Program
             if (state == FishingState.TimeToCatch)
             {
                 PressKey(Keys.E);
-                Delay(2000);
-                PressKey(Keys.R);
-                Delay(2000);
+                Delay(1000);
                 state = GetState();
             }
             if (state == FishingState.WaitingForFishing)
